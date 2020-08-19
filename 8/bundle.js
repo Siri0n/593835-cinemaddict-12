@@ -350,30 +350,36 @@ class MovieList {
   }
 
 
-  _configureArrayTheTypeOfNav(navType) {
+  _applyNavigation(navType) {
     switch (navType) {
       case _const_js__WEBPACK_IMPORTED_MODULE_0__["NavType"].WATCHLIST:
-        this._currentFilmsArray = this._dataFilmsArray.filter((item) => item.isWatchlist === true);
+        this._currentFilmsArray = this._dataFilmsArray.filter((item) => item.isWatchlist);
         break;
       case _const_js__WEBPACK_IMPORTED_MODULE_0__["NavType"].HISTORY:
-        this._currentFilmsArray = this._dataFilmsArray.filter((item) => item.isWatched === true);
+        this._currentFilmsArray = this._dataFilmsArray.filter((item) => item.isWatched);
         break;
       case _const_js__WEBPACK_IMPORTED_MODULE_0__["NavType"].FAVORITES:
-        this._currentFilmsArray = this._dataFilmsArray.filter((item) => item.isFavorite === true);
+        this._currentFilmsArray = this._dataFilmsArray.filter((item) => item.isFavorite);
         break;
       default:
         this._currentFilmsArray = this._dataFilmsArray;
     }
+
+    if (this._currentSortType !== _const_js__WEBPACK_IMPORTED_MODULE_0__["SortType"].DEFAULT) {
+      this._applySorting(this._currentSortType);
+    }
+
     this._currentNavType = navType;
   }
 
-  _configureArrayTheTypeOfSort(sortType) {
+  _applySorting(sortType) {
+
     switch (sortType) {
       case _const_js__WEBPACK_IMPORTED_MODULE_0__["SortType"].DATE:
-        this._currentFilmsArray = this._currentFilmsArray.sort(_utils_film_js__WEBPACK_IMPORTED_MODULE_12__["compareYear"]);
+        this._currentFilmsArray.sort(_utils_film_js__WEBPACK_IMPORTED_MODULE_12__["compareYear"]);
         break;
       case _const_js__WEBPACK_IMPORTED_MODULE_0__["SortType"].RATING:
-        this._currentFilmsArray = this._currentFilmsArray.sort(_utils_film_js__WEBPACK_IMPORTED_MODULE_12__["compareRating"]);
+        this._currentFilmsArray.sort(_utils_film_js__WEBPACK_IMPORTED_MODULE_12__["compareRating"]);
         break;
       default:
         this._currentFilmsArray = this._dataFilmsArray;
@@ -382,15 +388,16 @@ class MovieList {
     this._currentSortType = sortType;
   }
 
+
   _handleNavTypeChange(navType) {
     if (this._currentNavType === navType) {
       return;
     }
-    // очищаю контент и перезаписываю счетчик для кнопки more
+
     Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_11__["remove"])(this._filmsListComponent);
     this._renderCardsCount = CARDS_AMOUNT_PER_STEP;
-    // сортирую текущий карточки согласно выбранному пункты и отрисовываю контент
-    this._configureArrayTheTypeOfNav(navType);
+
+    this._applyNavigation(navType);
     this._renderMainContent();
   }
 
@@ -398,11 +405,11 @@ class MovieList {
     if (this._currentSortType === sortType) {
       return;
     }
-    // очищаю контент и перезаписываю счетчик для кнопки more
+
     Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_11__["remove"])(this._filmsListComponent);
     this._renderCardsCount = CARDS_AMOUNT_PER_STEP;
-    // сортирую текущий карточки согласно выбранному пункты и отрисовываю контент
-    this._configureArrayTheTypeOfSort(sortType);
+
+    this._applySorting(sortType);
     this._renderMainContent();
   }
 
@@ -1163,6 +1170,18 @@ class MainNavigation extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"
     }
 
     evt.preventDefault();
+
+    const navItems = document.querySelectorAll(`.main-navigation__item`);
+
+    for (let navItem of navItems) {
+      if (navItem.classList.contains(`main-navigation__item--active`)) {
+        navItem.classList.remove(`main-navigation__item--active`);
+      }
+    }
+
+    evt.target.classList.add(`main-navigation__item--active`);
+
+
     this._callback.navTypeChange(evt.target.dataset.navType);
   }
 
@@ -1291,6 +1310,15 @@ class Sorting extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
     }
 
     evt.preventDefault();
+    const sortButtons = document.querySelectorAll(`.sort__button`);
+
+    for (let button of sortButtons) {
+      if (button.classList.contains(`sort__button--active`)) {
+        button.classList.remove(`sort__button--active`);
+      }
+    }
+
+    evt.target.classList.add(`sort__button--active`);
     this._callback.sortTypeChange(evt.target.dataset.sortType);
   }
 
